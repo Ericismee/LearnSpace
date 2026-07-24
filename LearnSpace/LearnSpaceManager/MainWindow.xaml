@@ -1,0 +1,74 @@
+<Window x:Class="LearnSpaceManager.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:viewmodels="clr-namespace:LearnSpaceManager.ViewModels"
+        xmlns:local="clr-namespace:LearnSpaceManager"
+        mc:Ignorable="d"
+        Title="LearnSpace - Quản lý" Height="450" Width="400"
+        WindowStartupLocation="CenterScreen"
+        Icon="logo.png">
+    
+    <Window.DataContext>
+        <viewmodels:MainWindowViewModel/>
+    </Window.DataContext>
+
+    <Grid>
+        <Grid.Background>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Color="#F0F4F8" Offset="0"/>
+                <GradientStop Color="#E2E8F0" Offset="1"/>
+            </LinearGradientBrush>
+        </Grid.Background>
+        
+        <Border Background="White" CornerRadius="16" VerticalAlignment="Center" HorizontalAlignment="Center" Width="360" Padding="32" BorderBrush="#E5E7EB" BorderThickness="1">
+            <Border.Effect>
+                <DropShadowEffect Color="Black" Opacity="0.08" BlurRadius="24" ShadowDepth="8" />
+            </Border.Effect>
+            <StackPanel>
+                <!-- Logo -->
+                <Image Source="logo.png" Width="80" Height="80" Margin="0,0,0,16" RenderOptions.BitmapScalingMode="HighQuality"/>
+
+                <TextBlock Text="KẾT NỐI MÁY TRẺ" 
+                           FontSize="22" 
+                           FontWeight="Bold" 
+                           Foreground="#1E293B"
+                           HorizontalAlignment="Center" 
+                           Margin="0,0,0,24" />
+
+                <!-- Hiển thị mã PIN -->
+                <Border Background="#F8FAFC" 
+                        BorderBrush="#E2E8F0" BorderThickness="1"
+                        CornerRadius="12" 
+                        Padding="16" 
+                        Margin="0,0,0,24">
+                    <TextBlock Text="{Binding PinCode}" 
+                               FontSize="48" 
+                               FontWeight="Bold" 
+                               Foreground="#3B82F6" 
+                               HorizontalAlignment="Center" />
+                </Border>
+
+                <!-- Trạng thái -->
+                <TextBlock Text="{Binding StatusMessage}" 
+                           TextWrapping="Wrap" 
+                           TextAlignment="Center" 
+                           Foreground="#64748B" 
+                           Margin="0,0,0,24" />
+
+                <!-- Nút bấm -->
+                <Button Content="Tạo Mã Ghép Nối" 
+                        Command="{Binding GeneratePinCommand}" 
+                        Background="#3B82F6" Foreground="White" FontSize="16" FontWeight="SemiBold" 
+                        Padding="0,14" BorderThickness="0" Cursor="Hand">
+                    <Button.Resources>
+                        <Style TargetType="Border">
+                            <Setter Property="CornerRadius" Value="8"/>
+                        </Style>
+                    </Button.Resources>
+                </Button>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>

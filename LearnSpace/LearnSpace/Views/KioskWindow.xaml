@@ -1,0 +1,116 @@
+<Window x:Class="LearnSpace.Views.KioskWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:converters="clr-namespace:LearnSpace.Converters"
+        Title="LearnSpace - Chế độ Học tập" 
+        WindowState="Maximized" 
+        WindowStyle="None" 
+        Topmost="True" 
+        ShowInTaskbar="False"
+        Icon="logo.png"
+        Background="{DynamicResource BackgroundColor}"
+        Closing="Window_Closing"
+        Loaded="Window_Loaded">
+        
+    <Window.Resources>
+        <converters:Base64ImageConverter x:Key="Base64ImageConverter"/>
+
+        <!-- Style cho Nút App giống quán Net -->
+        <Style x:Key="CyberCafeAppButton" TargetType="Button">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="#E5E7EB"/>
+            <Setter Property="Margin" Value="12"/>
+            <Setter Property="Width" Value="140"/>
+            <Setter Property="Height" Value="140"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" 
+                                BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="16" Padding="12">
+                            <Border.Effect>
+                                <DropShadowEffect x:Name="shadow" Color="Black" Opacity="0.05" BlurRadius="10" ShadowDepth="2" />
+                            </Border.Effect>
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#F8FAFC"/>
+                                <Setter TargetName="border" Property="BorderBrush" Value="#3B82F6"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#F1F5F9"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <!-- Overlay mờ (Dim background) -->
+        <Border Background="#F3F4F6" Opacity="0.95" />
+
+        <Grid x:Name="MenuContainer" Margin="40">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <StackPanel HorizontalAlignment="Center">
+                <TextBlock Text="MENU ỨNG DỤNG" 
+                           FontSize="48" 
+                           FontWeight="Bold" 
+                           Foreground="{DynamicResource PrimaryColor}" 
+                           HorizontalAlignment="Center" 
+                           Margin="0,0,0,8" />
+                <TextBlock Text="Hãy chọn ứng dụng bạn muốn mở. Máy tính đang được bảo vệ." 
+                           FontSize="18" 
+                           Foreground="{DynamicResource TextSecondary}" 
+                           HorizontalAlignment="Center" 
+                           Margin="0,0,0,32" />
+            </StackPanel>
+
+            <!-- Lưới hiển thị Ứng dụng -->
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                <ItemsControl x:Name="AppItemsControl">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel HorizontalAlignment="Center" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Button Style="{StaticResource CyberCafeAppButton}" Click="BtnApp_Click">
+                                <StackPanel>
+                                    <Image Source="{Binding IconBase64, Converter={StaticResource Base64ImageConverter}}" 
+                                           Width="64" Height="64" Margin="0,0,0,8" RenderOptions.BitmapScalingMode="HighQuality"/>
+                                    <TextBlock Text="{Binding Name}" 
+                                               TextWrapping="Wrap" 
+                                               TextAlignment="Center" 
+                                               FontWeight="SemiBold"
+                                               Foreground="{DynamicResource TextPrimary}"
+                                               FontSize="14"/>
+                                </StackPanel>
+                            </Button>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+
+            <!-- Nút Mở Khóa Bằng Mã ở góc dưới phải -->
+            <Button Grid.Row="2" 
+                    Content="Nhập mã mở khóa (Kiosk)" 
+                    Style="{StaticResource PrimaryButtonStyle}" 
+                    Background="#10B981"
+                    HorizontalAlignment="Right"
+                    Margin="0,24,0,0"
+                    Click="BtnUnlock_Click" />
+        </Grid>
+    </Grid>
+</Window>

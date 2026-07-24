@@ -1,0 +1,1 @@
+using System; namespace LearnSpace.Core.Models { public class DeviceSecurityCodes { public string ExitCode { get; set; } public string UnlockCode { get; set; } public DateTime LastUpdated { get; set; } } }

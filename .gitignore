@@ -1,0 +1,7 @@
+**/bin/
+**/obj/
+.vs/
+Publish/
+*.user
+*.suo
+*.zip
