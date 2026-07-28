@@ -257,20 +257,20 @@ namespace LearnSpace.Core.Services
             return _firebaseClient
                 .Child("Devices")
                 .Child(deviceToken)
+                .Child("SecurityCodes")
                 .AsObservable<dynamic>()
                 .Subscribe(d =>
                 {
-                    if (d.EventType == Firebase.Database.Streaming.FirebaseEventType.InsertOrUpdate && d.Key == "SecurityCodes")
+                    if (d.EventType == Firebase.Database.Streaming.FirebaseEventType.InsertOrUpdate)
                     {
-                        var json = d.Object?.ToString();
-                        if (!string.IsNullOrEmpty(json))
+                        var registryService = new LearnSpace.Core.Win32.RegistryService();
+                        if (d.Key == "ExitCode" && d.Object != null)
                         {
-                            try 
-                            {
-                                var codes = Newtonsoft.Json.JsonConvert.DeserializeObject<DeviceSecurityCodes>(json);
-                                if (codes != null) onCodesUpdated?.Invoke(codes);
-                            }
-                            catch { }
+                            registryService.SaveSecurityCodes(d.Object.ToString(), null);
+                        }
+                        else if (d.Key == "UnlockCode" && d.Object != null)
+                        {
+                            registryService.SaveSecurityCodes(null, d.Object.ToString());
                         }
                     }
                 });

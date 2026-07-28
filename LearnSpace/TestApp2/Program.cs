@@ -1,16 +1,24 @@
 using System;
 using System.Threading.Tasks;
 using LearnSpace.Core.Services;
+using LearnSpace.Core.Models;
 
 class Program
 {
-    static async Task Main(string[] args)
+    static void Main(string[] args)
     {
         var fb = new FirebaseService();
-        var pin = await fb.CreatePairingRequestAsync();
-        Console.WriteLine("Created PIN: " + pin);
+        var token = "test-token";
         
-        bool res = await fb.ValidateAndPairAsync(pin, "test-token");
-        Console.WriteLine("Validation Result: " + res);
+        // Listen
+        var sub = fb.ListenToSecurityCodes(token, codes => {
+            Console.WriteLine("Received ExitCode: " + codes.ExitCode);
+        });
+        
+        // Put
+        var newCodes = new DeviceSecurityCodes { ExitCode = "777888", UnlockCode = "4444" };
+        fb.SetSecurityCodesAsync(token, newCodes).Wait();
+        
+        System.Threading.Thread.Sleep(3000);
     }
 }
