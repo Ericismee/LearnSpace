@@ -44,27 +44,25 @@ namespace LearnSpaceManager.ViewModels
 
                 // Lắng nghe sự thay đổi trạng thái
                 _pairingSubscription?.Dispose();
-                _pairingSubscription = _firebaseService.ListenToPairingRequest(PinCode)
-                    .Where(f => f.Object != null)
-                    .Subscribe(firebaseEvent =>
+                _pairingSubscription = _firebaseService.ListenToPairingRequest(PinCode, request =>
+                {
+                    // Đã được ghép nối
+                    Application.Current.Dispatcher.Invoke(() =>
                     {
-                        if (firebaseEvent.Object.Status == "paired")
-                        {
-                            Application.Current.Dispatcher.Invoke(() =>
-                            {
-                                StatusMessage = $"Ghép nối thành công! Mở bảng điều khiển...";
-                                _pairingSubscription?.Dispose();
-                                
-                                // Lưu token lại để lần sau mở app không cần ghép nối lại
-                                var registryService = new LearnSpace.Core.Win32.RegistryService();
-                                registryService.SaveDeviceToken(firebaseEvent.Object.DeviceToken);
+                        StatusMessage = "Ghép nối thành công! Mở bảng điều khiển...";
+                        
+                        // Lưu token lại để lần sau mở app không cần ghép nối lại
+                        var registryService = new LearnSpace.Core.Win32.RegistryService();
+                        registryService.SaveDeviceToken(request.DeviceToken);
 
-                                var dashboard = new Views.DashboardWindow(firebaseEvent.Object.DeviceToken);
-                                dashboard.Show();
-                                Application.Current.MainWindow.Close();
-                            });
-                        }
+                        // Mở Dashboard Window
+                        var dashboard = new LearnSpaceManager.Views.DashboardWindow(request.DeviceToken);
+                        dashboard.Show();
+                        
+                        // Đóng cửa sổ hiện tại
+                        Application.Current.MainWindow.Close();
                     });
+                });
             }
             catch (Exception ex)
             {

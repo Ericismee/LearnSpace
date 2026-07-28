@@ -45,12 +45,30 @@ namespace LearnSpace.Core.Services
         /// <summary>
         /// Theo dõi trạng thái của một mã PIN (dành cho ManagerApp)
         /// </summary>
-        public IObservable<FirebaseEvent<PairingRequest>> ListenToPairingRequest(string pinCode)
+        public IDisposable ListenToPairingRequest(string pinCode, Action<PairingRequest> onPaired)
         {
             return _firebaseClient
                 .Child("PairingRequests")
-                .Child(pinCode)
-                .AsObservable<PairingRequest>();
+                .AsObservable<dynamic>()
+                .Subscribe(d =>
+                {
+                    if (d.EventType == Firebase.Database.Streaming.FirebaseEventType.InsertOrUpdate && d.Key == pinCode)
+                    {
+                        var json = d.Object?.ToString();
+                        if (!string.IsNullOrEmpty(json))
+                        {
+                            try
+                            {
+                                var request = Newtonsoft.Json.JsonConvert.DeserializeObject<PairingRequest>(json);
+                                if (request != null && request.Status == "paired")
+                                {
+                                    onPaired?.Invoke(request);
+                                }
+                            }
+                            catch { }
+                        }
+                    }
+                });
         }
 
         /// <summary>
@@ -61,25 +79,22 @@ namespace LearnSpace.Core.Services
             var requestNode = _firebaseClient.Child("PairingRequests").Child(pinCode);
             var currentRequest = await requestNode.OnceSingleAsync<PairingRequest>();
 
-            if (currentRequest != null && currentRequest.Status == "waiting")
-            {
-                // Cập nhật trạng thái thành paired và lưu device token
-                currentRequest.Status = "paired";
-                currentRequest.DeviceToken = deviceToken;
+            if (currentRequest == null) throw new Exception("Không tìm thấy mã PIN trên hệ thống.");
+            if (currentRequest.Status != "waiting") throw new Exception("Mã PIN này đã được sử dụng hoặc hết hạn.");
+            // Cập nhật trạng thái thành paired và lưu device token
+            currentRequest.Status = "paired";
+            currentRequest.DeviceToken = deviceToken;
 
-                await requestNode.PutAsync(currentRequest);
-                
-                // Đồng thời, lưu DeviceToken vào node của Manager (để Manager biết máy nào thuộc về mình)
-                // Giả lập lưu vào node "Devices/{deviceToken}"
-                await _firebaseClient
-                    .Child("Devices")
-                    .Child(deviceToken)
-                    .PutAsync(new { Status = "Active", PairedAt = DateTime.UtcNow });
+            await requestNode.PutAsync(currentRequest);
+            
+            // Đồng thời, lưu DeviceToken vào node của Manager (để Manager biết máy nào thuộc về mình)
+            // Giả lập lưu vào node "Devices/{deviceToken}"
+            await _firebaseClient
+                .Child("Devices")
+                .Child(deviceToken)
+                .PutAsync(new { Status = "Active", PairedAt = DateTime.UtcNow });
 
-                return true;
-            }
-
-            return false;
+            return true;
         }
 
         /// <summary>

@@ -2,6 +2,5 @@
 **/obj/
 .vs/
 Publish/
-*.user
-*.suo
 *.zip
+*.suo
